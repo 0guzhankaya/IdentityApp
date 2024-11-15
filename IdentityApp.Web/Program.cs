@@ -16,6 +16,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Extension Static Methods.
 builder.Services.AddIdentityWithExtension();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+	var cookieBuilder = new CookieBuilder();
+	cookieBuilder.Name = "IdentityAppCookie";
+	options.LoginPath = new PathString("/Home/SignIn");
+	options.Cookie = cookieBuilder;
+	options.ExpireTimeSpan = TimeSpan.FromDays(60);
+	options.SlidingExpiration = true;
+});
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
