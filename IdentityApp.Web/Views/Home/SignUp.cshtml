@@ -2,6 +2,11 @@
 @{
 	ViewData["Title"] = "SignUp";
 }
+
+@section Scripts {
+	@await Html.PartialAsync("_ValidationScriptsPartial")
+}
+
 <section class="row">
 	<div class="col-md-6 offset-md-3">
 		<h2>Kayıt Ol</h2>
