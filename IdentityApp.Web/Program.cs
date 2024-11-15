@@ -21,6 +21,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 	var cookieBuilder = new CookieBuilder();
 	cookieBuilder.Name = "IdentityAppCookie";
 	options.LoginPath = new PathString("/Home/SignIn");
+	options.LogoutPath = new PathString("/Member/Logout"); // Logout için 2.yöntem
 	options.Cookie = cookieBuilder;
 	options.ExpireTimeSpan = TimeSpan.FromDays(60);
 	options.SlidingExpiration = true;
@@ -41,7 +42,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Area Routing
