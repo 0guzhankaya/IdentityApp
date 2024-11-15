@@ -27,11 +27,9 @@
 							<a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
 						</li>
 					</ul>
+					<!--Partial View's best practice integration.-->
+					<partial name="_NavbarLogin"></partial>
 				</div>
-
-				<a asp-controller="Home" asp-action="SignIn" class="btn btn-outline-primary mx-2" type="submit">Giriş Yap</a>
-				<a asp-controller="Home" asp-action="SignUp" class="btn btn-outline-success" type="submit">Kayıt Ol</a>
-
 			</div>
 		</nav>
 	</header>
