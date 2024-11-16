@@ -16,6 +16,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("SqlCon"));
 });
 
+// SecurityStamp Configuration
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+	options.ValidationInterval = TimeSpan.FromMinutes(30); // Default
+});
+
 // Extension Static Methods.
 builder.Services.AddIdentityWithExtension();
 
