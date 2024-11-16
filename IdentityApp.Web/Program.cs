@@ -1,5 +1,8 @@
 using IdentityApp.Web.Extensions;
 using IdentityApp.Web.Models;
+using IdentityApp.Web.OptionsModels;
+using IdentityApp.Web.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +30,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 	options.SlidingExpiration = true;
 });
 
+// Email settings configuration
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
+// DI
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

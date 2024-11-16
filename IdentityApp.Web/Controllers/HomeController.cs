@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using IdentityApp.Web.Extensions;
+using IdentityApp.Web.Services;
 
 namespace IdentityApp.Web.Controllers
 {
@@ -12,12 +13,14 @@ namespace IdentityApp.Web.Controllers
 		private readonly ILogger<HomeController> _logger;
 		private readonly UserManager<AppUser> _userManager; // Comes from Identity API.
 		private readonly SignInManager<AppUser> _signInManager; // Comes from Identity API.
+		private readonly IEmailService _emailService;
 
-		public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+		public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService)
 		{
 			_logger = logger;
 			_userManager = userManager;
 			_signInManager = signInManager;
+			_emailService = emailService;
 		}
 
 		public IActionResult Index()
@@ -67,6 +70,45 @@ namespace IdentityApp.Web.Controllers
 		{
 			return View();
 		}
+
+		[HttpGet]
+		public IActionResult ForgetPassword()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> ForgetPassword(ForgetPasswordViewModel request)
+		{
+			// Þifre sýfýrlama iþlemleminin zamanýný kýsýtlamak için token gönderilir.
+			// https://localhost:port?userId=123334523&token=jsdklfkejfks25325fsd
+
+			var user = await _userManager.FindByEmailAsync(request.Email);
+
+			if (user == null)
+			{
+				// data'lar ModelState üzerinden baþka yere taþýnmaz.
+				// Redirect edilirse data kaybý yaþanýr. Request'ler stateless'dýr. Http Protokol kuralýdýr.
+				// data TempData ile tek seferlik taþýnabilir.
+				ModelState.AddModelError(String.Empty, "Kullanýcý bulunamamýþtýr!");
+				return View();
+			}
+
+			string passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+			var passwordResetLink = Url.Action("ResetPassword", "Home", new 
+			{ 
+				userId = user.Id, Token = passwordResetToken 
+			},HttpContext.Request.Scheme, "localhost");
+
+			// Email Service
+			await _emailService.SendResetPasswordEmail(passwordResetLink, user.Email);
+
+			// ayný sayfada kaldýðýnda refresh yapýlýrsa yeni bir mail gider.
+			// TempData ile veri tutuldu ve Redirect edildi.
+			TempData["success"] = "Þifre yenileme linki e-posta adresinize gönderildi.";
+			return RedirectToAction(nameof(ForgetPassword));
+		}
+
 
 		[HttpPost]
 		public async Task<IActionResult> SignIn(SignInViewModel request, string? returnUrl = null)
