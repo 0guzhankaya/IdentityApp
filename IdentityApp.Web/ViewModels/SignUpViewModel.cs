@@ -30,11 +30,13 @@ namespace IdentityApp.Web.ViewModels
         [Display(Name = "Telefon")]
         public string PhoneNumber { get; set; }
 
-        [Required(ErrorMessage = "Şifre alanı boş bırakılamaz!")]
+		[DataType(DataType.Password)]
+		[Required(ErrorMessage = "Şifre alanı boş bırakılamaz!")]
         [Display(Name = "Şifre")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "Şifre tekrar alanı boş bırakılamaz!")]
+		[DataType(DataType.Password)]
+		[Required(ErrorMessage = "Şifre tekrar alanı boş bırakılamaz!")]
         [Compare(nameof(Password), ErrorMessage = "Girilen şifreler eşleşmiyor!")]
         [Display (Name = "Şifre Tekrar")]
         public string PasswordConfirm { get; set; }

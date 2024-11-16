@@ -33,6 +33,7 @@ namespace IdentityApp.Web.Controllers
 			return View();
 		}
 
+		[HttpGet]
 		public IActionResult SignUp()
 		{
 			return View();
@@ -71,6 +72,37 @@ namespace IdentityApp.Web.Controllers
 			return View();
 		}
 
+		[HttpPost]
+		public async Task<IActionResult> SignIn(SignInViewModel request, string? returnUrl = null)
+		{
+			returnUrl = returnUrl ?? Url.Action("Index", "Home");
+			var user = await _userManager.FindByEmailAsync(request.Email);
+
+			if (user == null)
+			{
+				ModelState.AddModelError(string.Empty, "Email veya þifre yanlýþ!");
+				return View();
+			}
+
+			var signInResult = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
+
+			if (signInResult.Succeeded)
+			{
+				return Redirect(returnUrl!);
+			}
+
+			if (signInResult.IsLockedOut)
+			{
+				ModelState.AddModelErrorList(new List<string>() { "10 dakika boyunca giriþ yapamazsýnýz!" });
+				return View();
+			}
+
+			ModelState.AddModelErrorList(new List<string>() { $"Email veya þifre yanlýþ!",
+				$"Baþarýsýz giriþ sayýsý: {await _userManager.GetAccessFailedCountAsync(user)}"});
+
+			return View();
+		}
+
 		[HttpGet]
 		public IActionResult ForgetPassword()
 		{
@@ -95,10 +127,11 @@ namespace IdentityApp.Web.Controllers
 			}
 
 			string passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-			var passwordResetLink = Url.Action("ResetPassword", "Home", new 
-			{ 
-				userId = user.Id, Token = passwordResetToken 
-			},HttpContext.Request.Scheme, "localhost");
+			var passwordResetLink = Url.Action("ResetPassword", "Home", new
+			{
+				userId = user.Id,
+				Token = passwordResetToken
+			}, HttpContext.Request.Scheme);
 
 			// Email Service
 			await _emailService.SendResetPasswordEmail(passwordResetLink, user.Email);
@@ -109,35 +142,40 @@ namespace IdentityApp.Web.Controllers
 			return RedirectToAction(nameof(ForgetPassword));
 		}
 
+		[HttpGet]
+		public IActionResult ResetPassword(string userId, string token)
+		{
+			TempData["userId"] = userId;
+			TempData["token"] = token;
+
+			return View();
+		}
 
 		[HttpPost]
-		public async Task<IActionResult> SignIn(SignInViewModel request, string? returnUrl = null)
+		public async Task<IActionResult> ResetPassword(ResetPasswordViewModel request)
 		{
-			returnUrl = returnUrl ?? Url.Action("Index", "Home");
-			var user = await _userManager.FindByEmailAsync(request.Email);
+			var userId = TempData["userId"];
+			var token = TempData["token"];
 
+			if (userId == null || token == null)
+			{
+				throw new Exception("Beklenmedik bir hata gerçekleþti!");
+			} 
+
+			var user = await _userManager.FindByIdAsync(userId.ToString()!);
 			if (user == null)
 			{
-				ModelState.AddModelError(string.Empty, "Email veya þifre yanlýþ!");
+				ModelState.AddModelError(String.Empty, "Kullanýcý bulunamadý!");
 				return View();
 			}
 
-			var signInResult = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
-
-			if (signInResult.Succeeded)
+			IdentityResult result = await _userManager.ResetPasswordAsync(user, token.ToString()!, request.Password);
+			if (result.Succeeded)
 			{
-				return Redirect(returnUrl);
+				TempData["success"] = "Þifre baþarýyla yenilenmiþtir.";
 			}
 
-			if (signInResult.IsLockedOut)
-			{
-				ModelState.AddModelErrorList(new List<string>() { "10 dakika boyunca giriþ yapamazsýnýz!" });
-				return View();
-			}
-
-			ModelState.AddModelErrorList(new List<string>() { $"Email veya þifre yanlýþ!", 
-				$"Baþarýsýz giriþ sayýsý: {await _userManager.GetAccessFailedCountAsync(user)}"});
-
+			ModelState.AddModelErrorList(result.Errors.Select(x => x.Description).ToList());
 			return View();
 		}
 
