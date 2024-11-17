@@ -4,6 +4,7 @@ using IdentityApp.Web.OptionsModels;
 using IdentityApp.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,9 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 
 // DI
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// File Provider, best practice way.
+builder.Services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory()));
 
 var app = builder.Build();
 
