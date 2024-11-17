@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/IdentityApp.Web/wwwroot/pictures/Guid.NewGuid().ToString().jpg
+/IdentityApp.Web/wwwroot/pictures/Guid.NewGuid().ToString().jpg
+/IdentityApp.Web/wwwroot/pictures/f893c56a-5388-4d55-b301-d781fda4d3e8.jpg
