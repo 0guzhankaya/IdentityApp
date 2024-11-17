@@ -33,12 +33,14 @@ namespace IdentityApp.Web.ViewModels
 		[DataType(DataType.Password)]
 		[Required(ErrorMessage = "Şifre alanı boş bırakılamaz!")]
         [Display(Name = "Şifre")]
-        public string Password { get; set; }
+		[MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır!")]
+		public string Password { get; set; }
 
 		[DataType(DataType.Password)]
 		[Required(ErrorMessage = "Şifre tekrar alanı boş bırakılamaz!")]
         [Compare(nameof(Password), ErrorMessage = "Girilen şifreler eşleşmiyor!")]
         [Display (Name = "Şifre Tekrar")]
-        public string PasswordConfirm { get; set; }
+		[MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır!")]
+		public string PasswordConfirm { get; set; }
     }
 }
