@@ -32,6 +32,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 	cookieBuilder.Name = "IdentityAppCookie";
 	options.LoginPath = new PathString("/Home/SignIn");
 	options.LogoutPath = new PathString("/Member/Logout"); // Logout için 2.yöntem
+	options.AccessDeniedPath = new PathString("/Member/AccessDenied"); // 403
 	options.Cookie = cookieBuilder;
 	options.ExpireTimeSpan = TimeSpan.FromDays(60);
 	options.SlidingExpiration = true;

@@ -150,5 +150,13 @@ namespace IdentityApp.Web.Controllers
 			await _signInManager.SignOutAsync();
 			return RedirectToAction("Index", "Home");
 		}
+
+		public IActionResult AccessDenied(string ReturnUrl)
+		{
+			string message = string.Empty;
+			message = "Yetki alanı dışı:/";
+			ViewBag.message = message;
+			return View();
+		}
 	}
 }

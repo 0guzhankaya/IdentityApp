@@ -2,6 +2,7 @@
 using IdentityApp.Web.Areas.Admin.Models;
 using IdentityApp.Web.Extensions;
 using IdentityApp.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace IdentityApp.Web.Areas.Admin.Controllers
 {
 	[Area("Admin")]
+	[Authorize(Roles = "admin")]
 	public class RolesController : Controller
 	{
 		private readonly UserManager<AppUser> _userManager;
