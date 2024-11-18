@@ -109,5 +109,60 @@ namespace IdentityApp.Web.Areas.Admin.Controllers
 
 			return RedirectToAction(nameof(RolesController.Index));
 		}
+
+		[HttpGet]
+		public async Task<IActionResult> AssignRoleToUser(string id)
+		{
+			var currentUser = await _userManager.FindByIdAsync(id);
+			ViewBag.userId = currentUser.Id;
+
+			if (currentUser == null)
+			{
+				throw new Exception("HATA! Kullanıcı bulunamadı!");
+			}
+
+			var roles = await _roleManager.Roles.ToListAsync();
+			var rolesViewModelList = new List<AssignRoleToUserViewModel>();
+
+			var userRoles = await _userManager.GetRolesAsync(currentUser);
+
+			foreach (var role in roles)
+			{
+				var assignRoleToUserViewModel = new AssignRoleToUserViewModel()
+				{
+					Id = role.Id,
+					Name = role.Name!,
+				};
+
+				if (userRoles.Contains(role.Name!))
+				{
+					assignRoleToUserViewModel.Exits = true;
+				}
+
+				rolesViewModelList.Add(assignRoleToUserViewModel);
+			}
+
+			return View(rolesViewModelList);
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> AssignRoleToUser(string userId, List<AssignRoleToUserViewModel> requestList)
+		{
+			var userToAssignRoles = await _userManager.FindByIdAsync(userId);
+
+			foreach (var role in requestList)
+			{
+				if (role.Exits)
+				{
+					await _userManager.AddToRoleAsync(userToAssignRoles, role.Name);
+				}
+				else
+				{
+					await _userManager.RemoveFromRoleAsync(userToAssignRoles, role.Name);
+				}
+			}
+
+			return RedirectToAction(nameof(HomeController.UserList), "Home");
+		}
 	}
 }
