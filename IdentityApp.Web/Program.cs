@@ -1,7 +1,9 @@
+using IdentityApp.Web.ClaimProvider;
 using IdentityApp.Web.Extensions;
 using IdentityApp.Web.Models;
 using IdentityApp.Web.OptionsModels;
 using IdentityApp.Web.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -44,8 +46,21 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 // DI
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// Claim injection
+builder.Services.AddScoped<IClaimsTransformation, UserClaimProvider>();
+
 // File Provider, best practice way.
 builder.Services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Directory.GetCurrentDirectory()));
+
+// Policy
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("AnkaraPolicy", policy =>
+	{
+		policy.RequireClaim("city", "Ankara");
+		policy.RequireRole("admin");
+	});
+});
 
 var app = builder.Build();
 
