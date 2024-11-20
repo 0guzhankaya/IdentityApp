@@ -158,5 +158,16 @@ namespace IdentityApp.Web.Controllers
 			ViewBag.message = message;
 			return View();
 		}
+
+		[HttpGet]
+		public async Task<IActionResult> Claims()
+		{
+			var userClaimList = User.Claims.Select(c => new ClaimViewModel() 
+			{ 
+				Issuer = c.Issuer, Type = c.Type, Value = c.Value
+			}).ToList();
+
+			return View(userClaimList);
+		}
 	}
 }
